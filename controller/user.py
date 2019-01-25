@@ -13,10 +13,8 @@ def findAll():
     try:
         sql = dbc.execute("""SELECT * FROM user""")
         users = dbc.fetchall()
-        dbc.close()
         return users
     except Exception as e:
-        dbc.close()
         return dbQueryError(e)
 
 
@@ -26,10 +24,8 @@ def findById(id=1):
     try:
         sql = dbc.execute("""SELECT * FROM user WHERE id = %s """, id)
         user = dbc.fetchall()
-        dbc.close()
         return user
     except pymysql.Error as e:
-        dbc.close()
         return dbQueryError(e)
 
 
@@ -42,10 +38,8 @@ def add(body):
         sql = "INSERT INTO user (username, email, statut, annee, created_at) VALUES (%s, %s, %s, %s, %s)"
         dbc.execute(sql, values)
         dbInstance.commit()
-        dbc.close()
         return [{'message': 'insert with success', 'error': False, 'code_status': 200}]
     except Exception as e:
-        dbc.close()
         return dbQueryError(e)
 
 
@@ -56,11 +50,21 @@ def remove(id):
         sql = "DELETE FROM user WHERE id = '%d'" % (id)
         dbc.execute(sql)
         dbInstance.commit()
-        dbInstance.close()
         return [{'message': 'deleted with success', 'error': False, 'code_status': 200}]
     except Exception as e:
         dbInstance.rollback()
-        dbInstance.close()
         return dbQueryError(e)
 
-# todo : https://www.tutorialspoint.com/python3/python_database_access.htm (delete create update)
+
+def modify(id, body):
+    dbc = dbInstance.cursor()
+
+    try:
+        values = (body["username"], body["email"], body["statut"], body["annee"], id)
+        sql = """UPDATE user SET username = %s, email = %s, statut = %s, annee= %s WHERE id = %s"""
+        dbc.execute(sql, values)
+        dbInstance.commit()
+        return [{'message': 'updated with success', 'error': False, 'code_status': 200}]
+    except Exception as e:
+        dbInstance.rollback()
+        return dbQueryError(e)
