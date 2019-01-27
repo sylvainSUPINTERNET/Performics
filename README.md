@@ -3,6 +3,7 @@
 <ul>
     <li>pip3</li>
     <li>python >= 3</li>
+    <li>mysql</li>
 </ul>
 
 
