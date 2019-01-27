@@ -1,5 +1,4 @@
 import json
-
 import pymysql
 from db.conf import host, password, user, dbname, port
 from db.errorManager import dbQueryError
@@ -13,18 +12,26 @@ def findAll():
     try:
         sql = dbc.execute("""SELECT * FROM user""")
         users = dbc.fetchall()
-        return users
+        payload = []
+        for user in users:
+            content = {'id': user[0], 'username': user[1], 'email': user[2], 'statut': user[3], 'annee': user[4],
+                       'created_at': user[5]}
+            payload.append(content)
+        return payload
     except Exception as e:
         return dbQueryError(e)
 
 
 def findById(id=1):
     dbc = dbInstance.cursor()
-
     try:
         sql = dbc.execute("""SELECT * FROM user WHERE id = %s """, id)
         user = dbc.fetchall()
-        return user
+        content = {}
+        for data in user:
+            content = {'id': data[0], 'username': data[1], 'email': data[2], 'statut': data[3], 'annee': data[4],
+                       'created_at': data[5]}
+        return content
     except pymysql.Error as e:
         return dbQueryError(e)
 
@@ -33,12 +40,13 @@ def add(body):
     dbc = dbInstance.cursor()
 
     try:
-        created_at = time.strftime('%Y-%m-%d')
-        values = (body["username"], body["email"], body["statut"], body["annee"], created_at)
+        createdAt = time.strftime('%Y-%m-%d')
+        values = (body["username"], body["email"], body["statut"], body["annee"], createdAt)
         sql = "INSERT INTO user (username, email, statut, annee, created_at) VALUES (%s, %s, %s, %s, %s)"
         dbc.execute(sql, values)
         dbInstance.commit()
-        return [{'message': 'insert with success', 'error': False, 'code_status': 200}]
+        last_insert_id = dbc.lastrowid
+        return {'id': last_insert_id, 'created_at': createdAt}
     except Exception as e:
         return dbQueryError(e)
 
