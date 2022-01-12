@@ -21,7 +21,7 @@ mysql-connector-python==8.0.14
 nbformat==4.4.0
 nltk==3.4
 openpyxl==2.5.14
-pipenv==2018.11.26
+pipenv==2022.1.8
 protobuf==3.6.1
 pycparser==2.19
 PyMySQL==0.9.3
